@@ -29,24 +29,17 @@ public class SessionMExtension implements FREExtension {
     public void dispose()
     {
         log("dispose");
+        context.dispose();
         context = null;
     }
 
     public static void log(String s)
     {
         Log.d(TAG, s);
-        if(context != null)
-        {
-            context.dispatchStatusEventAsync("LOG", s);
-        }
     }
 
     public static void logError(String s)
     {
         Log.e(TAG, s);
-        if(context != null)
-        {
-            context.dispatchStatusEventAsync("LOG", s);
-        }
     }
 }

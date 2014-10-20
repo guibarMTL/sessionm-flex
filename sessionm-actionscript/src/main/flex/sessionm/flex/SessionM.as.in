@@ -98,6 +98,9 @@ public class SessionM extends EventDispatcher implements ISessionM {
      * @default "STARTED_OFFLINE"
      */
     private var globalState:String = State.STARTED_OFFLINE;
+    
+    private static var _instance:SessionM;
+    private var _sessionStarted:Boolean;
 
     /**
      * The <code>SessionM</code> constructor. Initializes the context for the
@@ -106,7 +109,14 @@ public class SessionM extends EventDispatcher implements ISessionM {
      *
      * @public
      */
-    public function SessionM() {
+    public function SessionM()
+    {
+    	if (_instance)
+    	{
+    		throw new Error("SessionM already created!");
+    		return;
+    	}
+    	
         context = ExtensionContext.createExtensionContext(ID, null);
         logger = new FallbackLogger();
 
@@ -116,6 +126,16 @@ public class SessionM extends EventDispatcher implements ISessionM {
         else {
             this.context.addEventListener(StatusEvent.STATUS, statusHandler);
         }
+    }
+    
+    public static function getInstance():SessionM
+    {
+    	if (!_instance)
+    	{
+    		_instance = new SessionM();
+    	}
+    	
+    	return _instance;
     }
 
     /**
@@ -209,7 +229,11 @@ public class SessionM extends EventDispatcher implements ISessionM {
      * Portal.
      */
     public function startSession(appID:String):void {
-        callExtension("startSession", appID);
+    	if (!_sessionStarted)
+    	{
+    		_sessionStarted = true;
+    		callExtension("startSession", appID);
+    	}
     }
 
     /**
@@ -321,7 +345,7 @@ public class SessionM extends EventDispatcher implements ISessionM {
      * @return the SessionM native extension version number.
      */
     public function getExtensionVersion():String {
-        return "$(EXT-VERSION)";
+        return "1.1.1";
     }
 
     /** 
@@ -527,6 +551,10 @@ public class SessionM extends EventDispatcher implements ISessionM {
             context.dispose();
             context =  null;
         }
+        if (_instance) {
+        	_instance = null;
+        }
+        _sessionStarted = false;
     }
 }
 }
